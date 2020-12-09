@@ -1,0 +1,855 @@
+CCS PCM C Compiler, Version 5.007, 61971               24-May-20 04:39
+
+               Filename:   C:\Users\HaticeOzdemir\Desktop\gomuluders\main.lst
+
+               ROM used:   626 words (8%)
+                           Largest free fragment is 2048
+               RAM used:   39 (11%) at main() level
+                           48 (13%) worst case
+               Stack used: 1 locations (0 in main + 1 for interrupts)
+               Stack size: 8
+
+*
+0000:  MOVLW  02
+0001:  MOVWF  0A
+0002:  GOTO   230
+0003:  NOP
+0004:  MOVWF  7F
+0005:  SWAPF  03,W
+0006:  CLRF   03
+0007:  MOVWF  21
+0008:  MOVF   0A,W
+0009:  MOVWF  20
+000A:  CLRF   0A
+000B:  MOVF   04,W
+000C:  MOVWF  22
+000D:  MOVF   77,W
+000E:  MOVWF  23
+000F:  MOVF   78,W
+0010:  MOVWF  24
+0011:  MOVF   79,W
+0012:  MOVWF  25
+0013:  MOVF   7A,W
+0014:  MOVWF  26
+0015:  BCF    03.7
+0016:  BCF    03.5
+0017:  MOVLW  8C
+0018:  MOVWF  04
+0019:  BTFSS  00.0
+001A:  GOTO   01D
+001B:  BTFSC  0C.0
+001C:  GOTO   02E
+001D:  MOVF   22,W
+001E:  MOVWF  04
+001F:  MOVF   23,W
+0020:  MOVWF  77
+0021:  MOVF   24,W
+0022:  MOVWF  78
+0023:  MOVF   25,W
+0024:  MOVWF  79
+0025:  MOVF   26,W
+0026:  MOVWF  7A
+0027:  MOVF   20,W
+0028:  MOVWF  0A
+0029:  SWAPF  21,W
+002A:  MOVWF  03
+002B:  SWAPF  7F,F
+002C:  SWAPF  7F,W
+002D:  RETFIE
+002E:  BCF    0A.3
+002F:  BCF    0A.4
+0030:  GOTO   046
+.................... #include <main.h> 
+.................... #include <16F877.h> 
+.................... //////// Standard Header file for the PIC16F877 device //////////////// 
+.................... #device PIC16F877 
+0031:  MOVF   49,W
+0032:  CLRF   78
+0033:  SUBWF  48,W
+0034:  BTFSC  03.0
+0035:  GOTO   039
+0036:  MOVF   48,W
+0037:  MOVWF  77
+0038:  GOTO   045
+0039:  CLRF   77
+003A:  MOVLW  08
+003B:  MOVWF  4A
+003C:  RLF    48,F
+003D:  RLF    77,F
+003E:  MOVF   49,W
+003F:  SUBWF  77,W
+0040:  BTFSC  03.0
+0041:  MOVWF  77
+0042:  RLF    78,F
+0043:  DECFSZ 4A,F
+0044:  GOTO   03C
+0045:  RETURN
+....................  
+.................... #list 
+....................  
+.................... #device ADC=16 
+....................  
+.................... #FUSES NOWDT                 	//No Watch Dog Timer 
+.................... #FUSES NOBROWNOUT            	//No brownout reset 
+.................... #FUSES NOLVP                 	//No low voltage prgming, B3(PIC16) or B5(PIC18) used for I/O 
+....................  
+.................... #use delay(crystal=20000000) 
+*
+00F3:  MOVLW  43
+00F4:  MOVWF  04
+00F5:  BCF    03.7
+00F6:  MOVF   00,W
+00F7:  BTFSC  03.2
+00F8:  GOTO   106
+00F9:  MOVLW  06
+00FA:  MOVWF  78
+00FB:  CLRF   77
+00FC:  DECFSZ 77,F
+00FD:  GOTO   0FC
+00FE:  DECFSZ 78,F
+00FF:  GOTO   0FB
+0100:  MOVLW  7B
+0101:  MOVWF  77
+0102:  DECFSZ 77,F
+0103:  GOTO   102
+0104:  DECFSZ 00,F
+0105:  GOTO   0F9
+0106:  RETURN
+....................  
+....................  
+....................  
+....................  
+.................... int milisaniye = 0; 
+.................... int saniye = 0; 
+.................... int dakika = 0; 
+.................... int saat = 0; 
+.................... int saniye1,saniye2; 
+.................... int dakika1,dakika2; 
+.................... int saat1,saat2; 
+.................... // ÜSTEKÝLER NORMAL SAATÝN 
+.................... //ALTTAKÝLER ALARM SAATÝNÝN  
+.................... int alarmmilisaniye = 0; 
+.................... int alarmsaniye = 0; 
+.................... int alarmdakika = 0; 
+.................... int alarmsaat =0; 
+.................... int asaniye1,asaniye2; 
+.................... int adakika1,adakika2; 
+.................... int asaat1,asaat2; 
+....................  
+.................... int azaltmak,arttirmak,secmek,ayar;// AYAR YAPMAK ÝÇÝN 
+....................  
+.................... #int_timer1 
+.................... void timer1(){ 
+....................  
+....................    milisaniye++; 
+*
+0046:  INCF   28,F
+....................    output_a(milisaniye); 
+0047:  BSF    03.5
+0048:  CLRF   05
+0049:  BCF    03.5
+004A:  MOVF   28,W
+004B:  MOVWF  05
+....................     
+....................    if(milisaniye == 10){ 
+004C:  MOVF   28,W
+004D:  SUBLW  0A
+004E:  BTFSS  03.2
+004F:  GOTO   0C1
+....................    milisaniye=0; 
+0050:  CLRF   28
+....................    saniye++; 
+0051:  INCF   29,F
+....................     
+....................       if(saniye == 60){ 
+0052:  MOVF   29,W
+0053:  SUBLW  3C
+0054:  BTFSS  03.2
+0055:  GOTO   062
+....................       saniye=0; 
+0056:  CLRF   29
+....................       dakika++; 
+0057:  INCF   2A,F
+....................        
+....................          if(dakika == 60){ 
+0058:  MOVF   2A,W
+0059:  SUBLW  3C
+005A:  BTFSS  03.2
+005B:  GOTO   062
+....................          dakika = 0; 
+005C:  CLRF   2A
+....................          saat++; 
+005D:  INCF   2B,F
+....................           
+....................             if(saat==24){ 
+005E:  MOVF   2B,W
+005F:  SUBLW  18
+0060:  BTFSC  03.2
+....................             saat=0; 
+0061:  CLRF   2B
+....................                
+....................             } 
+....................          } 
+....................       } 
+....................  
+....................       saniye1 = saniye%10; 
+0062:  MOVF   29,W
+0063:  MOVWF  48
+0064:  MOVLW  0A
+0065:  MOVWF  49
+0066:  CALL   031
+0067:  MOVF   77,W
+0068:  MOVWF  2C
+....................       saniye2 = (saniye/10)%10; 
+0069:  MOVF   29,W
+006A:  MOVWF  48
+006B:  MOVLW  0A
+006C:  MOVWF  49
+006D:  CALL   031
+006E:  MOVF   78,W
+006F:  MOVWF  48
+0070:  MOVLW  0A
+0071:  MOVWF  49
+0072:  CALL   031
+0073:  MOVF   77,W
+0074:  MOVWF  2D
+....................       output_d(saniye1 | saniye2 <<4 ); 
+0075:  SWAPF  2D,W
+0076:  MOVWF  77
+0077:  MOVLW  F0
+0078:  ANDWF  77,F
+0079:  MOVF   77,W
+007A:  IORWF  2C,W
+007B:  MOVWF  47
+007C:  BSF    03.5
+007D:  CLRF   08
+007E:  BCF    03.5
+007F:  MOVF   47,W
+0080:  MOVWF  08
+....................        
+....................       dakika1 = dakika%10; 
+0081:  MOVF   2A,W
+0082:  MOVWF  48
+0083:  MOVLW  0A
+0084:  MOVWF  49
+0085:  CALL   031
+0086:  MOVF   77,W
+0087:  MOVWF  2E
+....................       dakika2 = (dakika/10)%10; 
+0088:  MOVF   2A,W
+0089:  MOVWF  48
+008A:  MOVLW  0A
+008B:  MOVWF  49
+008C:  CALL   031
+008D:  MOVF   78,W
+008E:  MOVWF  48
+008F:  MOVLW  0A
+0090:  MOVWF  49
+0091:  CALL   031
+0092:  MOVF   77,W
+0093:  MOVWF  2F
+....................       output_c(dakika1 | dakika2 <<4); 
+0094:  SWAPF  2F,W
+0095:  MOVWF  77
+0096:  MOVLW  F0
+0097:  ANDWF  77,F
+0098:  MOVF   77,W
+0099:  IORWF  2E,W
+009A:  MOVWF  47
+009B:  MOVLW  00
+009C:  MOVWF  40
+009D:  BSF    03.5
+009E:  CLRF   07
+009F:  BCF    03.5
+00A0:  MOVF   47,W
+00A1:  MOVWF  07
+....................        
+....................       saat1 = saat%10; 
+00A2:  MOVF   2B,W
+00A3:  MOVWF  48
+00A4:  MOVLW  0A
+00A5:  MOVWF  49
+00A6:  CALL   031
+00A7:  MOVF   77,W
+00A8:  MOVWF  30
+....................       saat2 = (saat/10)%10; 
+00A9:  MOVF   2B,W
+00AA:  MOVWF  48
+00AB:  MOVLW  0A
+00AC:  MOVWF  49
+00AD:  CALL   031
+00AE:  MOVF   78,W
+00AF:  MOVWF  48
+00B0:  MOVLW  0A
+00B1:  MOVWF  49
+00B2:  CALL   031
+00B3:  MOVF   77,W
+00B4:  MOVWF  31
+....................       output_b(saat1 | saat2 <<4); 
+00B5:  SWAPF  31,W
+00B6:  MOVWF  77
+00B7:  MOVLW  F0
+00B8:  ANDWF  77,F
+00B9:  MOVF   77,W
+00BA:  IORWF  30,W
+00BB:  MOVWF  47
+00BC:  BSF    03.5
+00BD:  CLRF   06
+00BE:  BCF    03.5
+00BF:  MOVF   47,W
+00C0:  MOVWF  06
+....................        
+....................    } 
+00C1:  BCF    0C.0
+00C2:  BCF    0A.3
+00C3:  BCF    0A.4
+00C4:  GOTO   01D
+.................... } 
+....................  
+.................... void SaatGoster(){ 
+....................    
+....................    output_a(milisaniye); 
+00C5:  BSF    03.5
+00C6:  CLRF   05
+00C7:  BCF    03.5
+00C8:  MOVF   28,W
+00C9:  MOVWF  05
+....................    output_d(saniye1 | saniye2 <<4 ); 
+00CA:  SWAPF  2D,W
+00CB:  MOVWF  77
+00CC:  MOVLW  F0
+00CD:  ANDWF  77,F
+00CE:  MOVF   77,W
+00CF:  IORWF  2C,W
+00D0:  MOVWF  42
+00D1:  BSF    03.5
+00D2:  CLRF   08
+00D3:  BCF    03.5
+00D4:  MOVF   42,W
+00D5:  MOVWF  08
+....................    output_c(dakika1 | dakika2 <<4); 
+00D6:  SWAPF  2F,W
+00D7:  MOVWF  77
+00D8:  MOVLW  F0
+00D9:  ANDWF  77,F
+00DA:  MOVF   77,W
+00DB:  IORWF  2E,W
+00DC:  MOVWF  42
+00DD:  MOVLW  00
+00DE:  MOVWF  40
+00DF:  BSF    03.5
+00E0:  CLRF   07
+00E1:  BCF    03.5
+00E2:  MOVF   42,W
+00E3:  MOVWF  07
+....................    output_b(saat1 | saat2 <<4); 
+00E4:  SWAPF  31,W
+00E5:  MOVWF  77
+00E6:  MOVLW  F0
+00E7:  ANDWF  77,F
+00E8:  MOVF   77,W
+00E9:  IORWF  30,W
+00EA:  MOVWF  42
+00EB:  BSF    03.5
+00EC:  CLRF   06
+00ED:  BCF    03.5
+00EE:  MOVF   42,W
+00EF:  MOVWF  06
+00F0:  BCF    0A.3
+00F1:  BCF    0A.4
+00F2:  GOTO   257 (RETURN)
+....................  
+.................... } 
+....................  
+.................... void AlarmGoster(){ 
+*
+0107:  CLRF   42
+....................    int secim=0; 
+....................   // disable_interrupts(int_timer1); 
+....................  
+....................    while(ayar == 0){ 
+0108:  MOVF   3F,F
+0109:  BTFSS  03.2
+010A:  GOTO   22D
+....................    ayar = input(pin_e0);// SAATÝ TEKRAR BAÞLATANA KADAR 
+010B:  BSF    03.5
+010C:  BSF    09.0
+010D:  BCF    03.5
+010E:  CLRF   3F
+010F:  BTFSC  09.0
+0110:  INCF   3F,F
+....................    secmek = input(pin_e1); // KUR PÝNÝ ÝLE SEÇÝM  
+0111:  BSF    03.5
+0112:  BSF    09.1
+0113:  BCF    03.5
+0114:  CLRF   3E
+0115:  BTFSC  09.1
+0116:  INCF   3E,F
+....................    arttirmak = input(pin_a4); // ARTTIRMAK ÝÇÝN 
+0117:  BSF    03.5
+0118:  BSF    05.4
+0119:  BCF    03.5
+011A:  CLRF   3D
+011B:  BTFSC  05.4
+011C:  INCF   3D,F
+....................    azaltmak = input(pin_a5);  //AZALTMAK Ýçin 
+011D:  BSF    03.5
+011E:  BSF    05.5
+011F:  BCF    03.5
+0120:  CLRF   3C
+0121:  BTFSC  05.5
+0122:  INCF   3C,F
+....................     
+....................    if(secmek == 1) 
+0123:  DECFSZ 3E,W
+0124:  GOTO   129
+....................    { 
+....................    secim++; 
+0125:  INCF   42,F
+....................    delay_ms(250); 
+0126:  MOVLW  FA
+0127:  MOVWF  43
+0128:  CALL   0F3
+....................    } 
+....................     
+....................     if(secim ==0){ 
+0129:  MOVF   42,F
+012A:  BTFSS  03.2
+012B:  GOTO   141
+....................       if(arttirmak == 1){ 
+012C:  DECFSZ 3D,W
+012D:  GOTO   136
+....................       alarmmilisaniye++; 
+012E:  INCF   32,F
+....................       delay_ms(250); 
+012F:  MOVLW  FA
+0130:  MOVWF  43
+0131:  CALL   0F3
+....................          if(alarmmilisaniye >=10){alarmmilisaniye = 0;} 
+0132:  MOVF   32,W
+0133:  SUBLW  09
+0134:  BTFSS  03.0
+0135:  CLRF   32
+....................       } 
+....................       if(azaltmak ==1){ 
+0136:  DECFSZ 3C,W
+0137:  GOTO   141
+....................       alarmmilisaniye--; 
+0138:  DECF   32,F
+....................       delay_ms(250); 
+0139:  MOVLW  FA
+013A:  MOVWF  43
+013B:  CALL   0F3
+....................          if(alarmmilisaniye <=0){alarmmilisaniye = 9;} 
+013C:  MOVF   32,F
+013D:  BTFSS  03.2
+013E:  GOTO   141
+013F:  MOVLW  09
+0140:  MOVWF  32
+....................       } 
+....................     } 
+....................   
+....................         if(secim ==1){ 
+0141:  DECFSZ 42,W
+0142:  GOTO   158
+....................       if(arttirmak == 1){ 
+0143:  DECFSZ 3D,W
+0144:  GOTO   14D
+....................       alarmsaniye++; 
+0145:  INCF   33,F
+....................      delay_ms(250); 
+0146:  MOVLW  FA
+0147:  MOVWF  43
+0148:  CALL   0F3
+....................          if(alarmsaniye >=60){alarmsaniye = 0;} 
+0149:  MOVF   33,W
+014A:  SUBLW  3B
+014B:  BTFSS  03.0
+014C:  CLRF   33
+....................       } 
+....................       if(azaltmak ==1){ 
+014D:  DECFSZ 3C,W
+014E:  GOTO   158
+....................       alarmsaniye--; 
+014F:  DECF   33,F
+....................       delay_ms(250); 
+0150:  MOVLW  FA
+0151:  MOVWF  43
+0152:  CALL   0F3
+....................          if(alarmsaniye <=0){alarmsaniye = 59;} 
+0153:  MOVF   33,F
+0154:  BTFSS  03.2
+0155:  GOTO   158
+0156:  MOVLW  3B
+0157:  MOVWF  33
+....................       } 
+....................     } 
+....................      
+....................      if(secim ==2){ 
+0158:  MOVF   42,W
+0159:  SUBLW  02
+015A:  BTFSS  03.2
+015B:  GOTO   171
+....................       if(arttirmak == 1){ 
+015C:  DECFSZ 3D,W
+015D:  GOTO   166
+....................       alarmdakika++; 
+015E:  INCF   34,F
+....................       delay_ms(250); 
+015F:  MOVLW  FA
+0160:  MOVWF  43
+0161:  CALL   0F3
+....................          if(alarmdakika >=60){alarmdakika = 0;} 
+0162:  MOVF   34,W
+0163:  SUBLW  3B
+0164:  BTFSS  03.0
+0165:  CLRF   34
+....................       } 
+....................       if(azaltmak ==1){ 
+0166:  DECFSZ 3C,W
+0167:  GOTO   171
+....................       alarmdakika--; 
+0168:  DECF   34,F
+....................       delay_ms(250); 
+0169:  MOVLW  FA
+016A:  MOVWF  43
+016B:  CALL   0F3
+....................          if(alarmdakika <=0){alarmdakika = 59;} 
+016C:  MOVF   34,F
+016D:  BTFSS  03.2
+016E:  GOTO   171
+016F:  MOVLW  3B
+0170:  MOVWF  34
+....................       } 
+....................     } 
+....................  
+....................     if(secim ==3){ 
+0171:  MOVF   42,W
+0172:  SUBLW  03
+0173:  BTFSS  03.2
+0174:  GOTO   18A
+....................       if(arttirmak == 1){ 
+0175:  DECFSZ 3D,W
+0176:  GOTO   17F
+....................       alarmsaat++; 
+0177:  INCF   35,F
+....................       delay_ms(250); 
+0178:  MOVLW  FA
+0179:  MOVWF  43
+017A:  CALL   0F3
+....................          if(alarmsaat >=24){alarmsaat = 0;} 
+017B:  MOVF   35,W
+017C:  SUBLW  17
+017D:  BTFSS  03.0
+017E:  CLRF   35
+....................       } 
+....................       if(azaltmak ==1){ 
+017F:  DECFSZ 3C,W
+0180:  GOTO   18A
+....................       alarmsaat--; 
+0181:  DECF   35,F
+....................       delay_ms(250); 
+0182:  MOVLW  FA
+0183:  MOVWF  43
+0184:  CALL   0F3
+....................          if(alarmsaat <=0){alarmsaat = 23;} 
+0185:  MOVF   35,F
+0186:  BTFSS  03.2
+0187:  GOTO   18A
+0188:  MOVLW  17
+0189:  MOVWF  35
+....................       } 
+....................     } 
+....................  
+....................     if(secim > 3){ 
+018A:  MOVF   42,W
+018B:  SUBLW  03
+018C:  BTFSC  03.0
+018D:  GOTO   192
+....................     secim = 0; 
+018E:  CLRF   42
+....................     delay_ms(250); 
+018F:  MOVLW  FA
+0190:  MOVWF  43
+0191:  CALL   0F3
+....................     } 
+....................        
+....................       output_a(alarmmilisaniye); 
+0192:  BSF    03.5
+0193:  CLRF   05
+0194:  BCF    03.5
+0195:  MOVF   32,W
+0196:  MOVWF  05
+0197:  CLRF   27
+0198:  BTFSC  0B.7
+0199:  BSF    27.7
+019A:  BCF    0B.7
+....................       asaniye1 = alarmsaniye%10; 
+019B:  MOVF   33,W
+019C:  MOVWF  48
+019D:  MOVLW  0A
+019E:  MOVWF  49
+019F:  CALL   031
+01A0:  BTFSC  27.7
+01A1:  BSF    0B.7
+01A2:  MOVF   77,W
+01A3:  MOVWF  36
+01A4:  CLRF   27
+01A5:  BTFSC  0B.7
+01A6:  BSF    27.7
+01A7:  BCF    0B.7
+....................       asaniye2 = (alarmsaniye/10)%10; 
+01A8:  MOVF   33,W
+01A9:  MOVWF  48
+01AA:  MOVLW  0A
+01AB:  MOVWF  49
+01AC:  CALL   031
+01AD:  BTFSC  27.7
+01AE:  BSF    0B.7
+01AF:  CLRF   27
+01B0:  BTFSC  0B.7
+01B1:  BSF    27.7
+01B2:  BCF    0B.7
+01B3:  MOVF   78,W
+01B4:  MOVWF  48
+01B5:  MOVLW  0A
+01B6:  MOVWF  49
+01B7:  CALL   031
+01B8:  BTFSC  27.7
+01B9:  BSF    0B.7
+01BA:  MOVF   77,W
+01BB:  MOVWF  37
+....................       output_d(asaniye1 | asaniye2 <<4 ); 
+01BC:  SWAPF  37,W
+01BD:  MOVWF  77
+01BE:  MOVLW  F0
+01BF:  ANDWF  77,F
+01C0:  MOVF   77,W
+01C1:  IORWF  36,W
+01C2:  MOVWF  43
+01C3:  BSF    03.5
+01C4:  CLRF   08
+01C5:  BCF    03.5
+01C6:  MOVF   43,W
+01C7:  MOVWF  08
+01C8:  CLRF   27
+01C9:  BTFSC  0B.7
+01CA:  BSF    27.7
+01CB:  BCF    0B.7
+....................        
+....................       adakika1 = alarmdakika%10; 
+01CC:  MOVF   34,W
+01CD:  MOVWF  48
+01CE:  MOVLW  0A
+01CF:  MOVWF  49
+01D0:  CALL   031
+01D1:  BTFSC  27.7
+01D2:  BSF    0B.7
+01D3:  MOVF   77,W
+01D4:  MOVWF  38
+01D5:  CLRF   27
+01D6:  BTFSC  0B.7
+01D7:  BSF    27.7
+01D8:  BCF    0B.7
+....................       adakika2 = (alarmdakika/10)%10; 
+01D9:  MOVF   34,W
+01DA:  MOVWF  48
+01DB:  MOVLW  0A
+01DC:  MOVWF  49
+01DD:  CALL   031
+01DE:  BTFSC  27.7
+01DF:  BSF    0B.7
+01E0:  CLRF   27
+01E1:  BTFSC  0B.7
+01E2:  BSF    27.7
+01E3:  BCF    0B.7
+01E4:  MOVF   78,W
+01E5:  MOVWF  48
+01E6:  MOVLW  0A
+01E7:  MOVWF  49
+01E8:  CALL   031
+01E9:  BTFSC  27.7
+01EA:  BSF    0B.7
+01EB:  MOVF   77,W
+01EC:  MOVWF  39
+....................       output_c(adakika1 | adakika2 <<4); 
+01ED:  SWAPF  39,W
+01EE:  MOVWF  77
+01EF:  MOVLW  F0
+01F0:  ANDWF  77,F
+01F1:  MOVF   77,W
+01F2:  IORWF  38,W
+01F3:  MOVWF  43
+01F4:  MOVLW  00
+01F5:  MOVWF  40
+01F6:  BSF    03.5
+01F7:  CLRF   07
+01F8:  BCF    03.5
+01F9:  MOVF   43,W
+01FA:  MOVWF  07
+01FB:  CLRF   27
+01FC:  BTFSC  0B.7
+01FD:  BSF    27.7
+01FE:  BCF    0B.7
+....................        
+....................       asaat1 = alarmsaat%10; 
+01FF:  MOVF   35,W
+0200:  MOVWF  48
+0201:  MOVLW  0A
+0202:  MOVWF  49
+0203:  CALL   031
+0204:  BTFSC  27.7
+0205:  BSF    0B.7
+0206:  MOVF   77,W
+0207:  MOVWF  3A
+0208:  CLRF   27
+0209:  BTFSC  0B.7
+020A:  BSF    27.7
+020B:  BCF    0B.7
+....................       asaat2 = (alarmsaat/10)%10; 
+020C:  MOVF   35,W
+020D:  MOVWF  48
+020E:  MOVLW  0A
+020F:  MOVWF  49
+0210:  CALL   031
+0211:  BTFSC  27.7
+0212:  BSF    0B.7
+0213:  CLRF   27
+0214:  BTFSC  0B.7
+0215:  BSF    27.7
+0216:  BCF    0B.7
+0217:  MOVF   78,W
+0218:  MOVWF  48
+0219:  MOVLW  0A
+021A:  MOVWF  49
+021B:  CALL   031
+021C:  BTFSC  27.7
+021D:  BSF    0B.7
+021E:  MOVF   77,W
+021F:  MOVWF  3B
+....................       output_b(asaat1 | asaat2 <<4); 
+0220:  SWAPF  3B,W
+0221:  MOVWF  77
+0222:  MOVLW  F0
+0223:  ANDWF  77,F
+0224:  MOVF   77,W
+0225:  IORWF  3A,W
+0226:  MOVWF  43
+0227:  BSF    03.5
+0228:  CLRF   06
+0229:  BCF    03.5
+022A:  MOVF   43,W
+022B:  MOVWF  06
+022C:  GOTO   108
+....................  
+....................    }//while 
+022D:  BCF    0A.3
+022E:  BCF    0A.4
+022F:  GOTO   270 (RETURN)
+....................  
+.................... } 
+....................    
+....................  
+....................  
+....................     
+....................  
+....................  
+.................... void AlarmKontrol(){ 
+....................  
+....................   
+.................... } 
+....................  
+.................... void main() 
+0230:  CLRF   28
+0231:  CLRF   29
+0232:  CLRF   2A
+0233:  CLRF   2B
+0234:  CLRF   32
+0235:  CLRF   33
+0236:  CLRF   34
+0237:  CLRF   35
+0238:  MOVLW  FF
+0239:  MOVWF  40
+023A:  BSF    03.5
+023B:  BSF    1F.0
+023C:  BSF    1F.1
+023D:  BSF    1F.2
+023E:  BCF    1F.3
+023F:  BCF    03.7
+0240:  MOVLW  1F
+0241:  ANDWF  03,F
+0242:  BCF    03.5
+0243:  CLRF   41
+.................... { 
+....................    int saatalarm=0; 
+....................   
+....................    setup_timer_1(T1_INTERNAL | T1_DIV_BY_8); 
+0244:  MOVLW  B5
+0245:  MOVWF  10
+....................    enable_interrupts(int_timer1); 
+0246:  BSF    03.5
+0247:  BSF    0C.0
+....................    enable_interrupts(global); 
+0248:  MOVLW  C0
+0249:  BCF    03.5
+024A:  IORWF  0B,F
+....................     
+....................  
+....................    while(TRUE) 
+....................    { 
+....................       saatalarm = input(pin_e0); 
+024B:  BSF    03.5
+024C:  BSF    09.0
+024D:  BCF    03.5
+024E:  CLRF   41
+024F:  BTFSC  09.0
+0250:  INCF   41,F
+....................    
+....................       while(saatalarm==1){ 
+0251:  DECFSZ 41,W
+0252:  GOTO   26C
+....................          enable_interrupts(int_timer1); 
+0253:  BSF    03.5
+0254:  BSF    0C.0
+....................          SaatGoster(); 
+0255:  BCF    03.5
+0256:  GOTO   0C5
+....................          if(alarmmilisaniye == milisaniye && alarmsaniye == saniye && alarmdakika == dakika && alarmsaat == saat){ 
+0257:  MOVF   28,W
+0258:  SUBWF  32,W
+0259:  BTFSS  03.2
+025A:  GOTO   26B
+025B:  MOVF   29,W
+025C:  SUBWF  33,W
+025D:  BTFSS  03.2
+025E:  GOTO   26B
+025F:  MOVF   2A,W
+0260:  SUBWF  34,W
+0261:  BTFSS  03.2
+0262:  GOTO   26B
+0263:  MOVF   2B,W
+0264:  SUBWF  35,W
+0265:  BTFSS  03.2
+0266:  GOTO   26B
+....................           
+....................               output_high(pin_e2);  
+0267:  BSF    03.5
+0268:  BCF    09.2
+0269:  BCF    03.5
+026A:  BSF    09.2
+....................    } 
+026B:  GOTO   251
+....................           
+....................       } 
+....................          disable_interrupts(int_timer1); 
+026C:  BSF    03.5
+026D:  BCF    0C.0
+....................          AlarmGoster(); 
+026E:  BCF    03.5
+026F:  GOTO   107
+0270:  GOTO   24B
+....................    }} 
+0271:  SLEEP
+
+Configuration Fuses:
+   Word  1: 3F32   HS NOWDT PUT NOBROWNOUT NOLVP NOCPD NOWRT NODEBUG NOPROTECT
